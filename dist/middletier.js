@@ -166,8 +166,8 @@ Object.defineProperty(exports, "__esModule", ({
 }));
 var http_errors_1 = __importDefault(__webpack_require__(/*! http-errors */ "http-errors"));
 var path = __importStar(__webpack_require__(/*! path */ "path"));
-var cookieParser = __importStar(__webpack_require__(/*! cookie-parser */ "cookie-parser"));
-var logger = __importStar(__webpack_require__(/*! morgan */ "morgan"));
+var cookie_parser_1 = __importDefault(__webpack_require__(/*! cookie-parser */ "cookie-parser"));
+var morgan_1 = __importDefault(__webpack_require__(/*! morgan */ "morgan"));
 var express_1 = __importDefault(__webpack_require__(/*! express */ "express"));
 var https_1 = __importDefault(__webpack_require__(/*! https */ "https"));
 var office_addin_dev_certs_1 = __webpack_require__(/*! office-addin-dev-certs */ "office-addin-dev-certs");
@@ -180,12 +180,12 @@ app.set("port", port);
 // view engine setup
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "pug");
-app.use(logger("dev"));
+app.use((0, morgan_1.default)("dev"));
 app.use(express_1.default.json());
 app.use(express_1.default.urlencoded({
   extended: false
 }));
-app.use(cookieParser());
+app.use((0, cookie_parser_1.default)());
 /* Turn off caching when developing */
 if (true) {
   app.use(express_1.default.static(path.join(process.cwd(), "dist"), {

@@ -1,7 +1,7 @@
 import createError from "http-errors";
 import * as path from "path";
-import * as cookieParser from "cookie-parser";
-import * as logger from "morgan";
+import cookieParser from "cookie-parser";
+import logger from "morgan";
 import express from "express";
 import https from "https";
 import { getHttpsServerOptions } from "office-addin-dev-certs";
