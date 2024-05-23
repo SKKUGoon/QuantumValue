@@ -1,14 +1,16 @@
-import createError from "http-errors";
-import * as path from "path";
-import cookieParser from "cookie-parser";
-import logger from "morgan";
 import express from "express";
+import createError from "http-errors";
+import cookieParser from "cookie-parser";
 import https from "https";
+import logger from "morgan";
+import * as path from "path";
 import { getHttpsServerOptions } from "office-addin-dev-certs";
-import { getUserData } from "./msgraph-helper";
-import { validateJwt } from "./ssoauth-helper";
 
 /* global console, process, require, __dirname */
+
+if (process.env.NODE_ENV !== "production") {
+  require("dotenv").config();
+}
 
 const app = express();
 const port: number | string = process.env.API_PORT || "3000";
@@ -28,7 +30,7 @@ app.use(cookieParser());
 if (process.env.NODE_ENV !== "production") {
   app.use(express.static(path.join(process.cwd(), "dist"), { etag: false }));
 
-  app.use(function (req, res, next) {
+  app.use((_, res, next) => {
     res.header("Cache-Control", "private, no-cache, no-store, must-revalidate");
     res.header("Expires", "-1");
     res.header("Pragma", "no-cache");
@@ -40,21 +42,13 @@ if (process.env.NODE_ENV !== "production") {
 }
 
 const indexRouter = express.Router();
-indexRouter.get("/", function (req, res) {
+indexRouter.get("/", (_, res) => {
   res.render("/taskpane.html");
 });
 
 app.use("/", indexRouter);
 
 // Middle-tier API calls
-// listen for 'ping' to verify service is running
-// Un comment for development debugging, but un needed for production deployment
-// app.get("/ping", function (req: any, res: any) {
-//   res.send(process.platform);
-// });
-
-//app.get("/getuserdata", validateJwt, getUserData);
-app.get("/getuserdata", validateJwt, getUserData);
 
 // Get the client side task pane files requested
 app.get("/taskpane.html", async (req: any, res: any) => {
@@ -66,12 +60,12 @@ app.get("/fallbackauthdialog.html", async (req: any, res: any) => {
 });
 
 // Catch 404 and forward to error handler
-app.use(function (req: any, res: any, next: any) {
+app.use((_req: any, _res: any, next: any) => {
   next(createError(404));
 });
 
 // error handler
-app.use(function (err: any, req: any, res: any) {
+app.use((err: any, req: any, res: any) => {
   // set locals, only providing error in development
   res.locals.message = err.message;
   res.locals.error = req.app.get("env") === "development" ? err : {};
@@ -86,12 +80,3 @@ getHttpsServerOptions().then((options) => {
     .createServer(options, app)
     .listen(port, () => console.log(`Server running on ${port} in ${process.env.NODE_ENV} mode`));
 });
-/*
- * Copyright (c) Microsoft. All rights reserved. Licensed under the MIT license. See full license in root of repo. -->
- *
- * This file is the main Node.js server file that defines the express middleware.
- */
-
-if (process.env.NODE_ENV !== "production") {
-  require("dotenv").config();
-}

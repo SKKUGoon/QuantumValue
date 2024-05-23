@@ -7,7 +7,7 @@ const nodeExternals = require("webpack-node-externals");
 const urlDev = "https://localhost:3000/";
 const urlProd = "https://www.contoso.com/"; // CHANGE THIS TO YOUR PRODUCTION DEPLOYMENT LOCATION
 
-module.exports = async (env, options) => {
+module.exports = async (_env, options) => {
   const dev = options.mode === "development";
   const config = [
     {
