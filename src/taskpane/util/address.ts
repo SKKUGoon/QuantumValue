@@ -6,6 +6,34 @@ export type ExcelRangeAddress = string;
 export type ExcelCellIndex = [number, number];
 export type ExcelRangeIndex = [number, number, number, number];
 
+export interface QCellProp {
+  sheet?: ExcelSheet;
+  address?: ExcelCellAddress;
+  index?: ExcelCellIndex;
+  rc?: undefined;
+  rcIndex?: undefined;
+}
+
+export interface QRangeProp {
+  sheet?: ExcelSheet;
+  address?: ExcelRangeAddress;
+  index?: ExcelRangeIndex;
+  rc?: undefined;
+  rcIndex?: undefined;
+
+  cells?: {
+    start: QCellProp;
+    end: QCellProp;
+  };
+}
+
+export type QRangeFromCellProp = {
+  cells: {
+    start: QCellProp;
+    end: QCellProp;
+  };
+};
+
 export const CellPropDefault = {
   // style:true,
   format: {
@@ -78,9 +106,7 @@ export class QParse {
   static rowToIndex(rowStr: string) {
     return parseInt(rowStr) - 1;
   }
-}
 
-export class QAddress {
   static addressToIndex(address: ExcelCellAddress | ExcelRangeAddress): ExcelCellIndex | ExcelRangeIndex {
     const strAddress = address.includes("!") ? address.split("!")[0] : address;
     const [start, end] = strAddress.replace(/\$/g, "").split(":"); // Remove Dollar sign
@@ -98,8 +124,79 @@ export class QAddress {
     return [startRow, startColumn] as ExcelCellIndex;
   }
 
-  static indexToString(index: ExcelCellIndex | ExcelRangeIndex): ExcelCellAddress | ExcelRangeAddress {
+  static indexToAddress(index: ExcelCellIndex | ExcelRangeIndex): ExcelCellAddress | ExcelRangeAddress {
     console.log(index);
     return "";
   }
 }
+
+export class QCell implements QCellProp {
+  sheet: string;
+  address?: string;
+  index?: ExcelCellIndex;
+  rc: undefined;
+  rcIndex: undefined;
+
+  constructor({ sheet, address, index }: QCellProp) {
+    if (!address && !index) throw new Error("[QCell] >>> both address and index are missing");
+
+    this.sheet = sheet;
+    if (address) {
+      this.address = address;
+      this.index = QParse.addressToIndex(this.address) as ExcelCellIndex;
+    } else {
+      this.index = index;
+      this.address = QParse.indexToAddress(this.index);
+    }
+  }
+
+  move(): QCell {
+    // Not Implemented
+    return this;
+  }
+}
+
+export class QRange implements QRangeProp {
+  sheet?: string;
+  address?: string;
+  index?: ExcelRangeIndex;
+  rc: undefined;
+  rcIndex: undefined;
+
+  cells?: { start: QCellProp; end: QCellProp };
+
+  constructor({ sheet, address, index }: QRangeProp) {
+    if (!address && !index) throw new Error("[QRange] >>> both address and index are missing");
+
+    this.sheet = sheet;
+
+    if (address) {
+      this.address = address;
+      this.index = QParse.addressToIndex(this.address) as ExcelRangeIndex;
+    } else {
+      this.index = index;
+      this.address = QParse.indexToAddress(this.index);
+    }
+  }
+
+  static fromCells({ cells }: QRangeFromCellProp): QRange {
+    const address = `${cells.start.address}:${cells.end.address}`;
+    const sheet = cells.start.sheet ? cells.start.sheet : undefined;
+
+    const props: QRangeProp = {
+      sheet: sheet,
+      address: address,
+    };
+    const rangeCls = new QRange(props);
+    return rangeCls;
+  }
+}
+
+// export class QAddress implements ExcelRange {
+
+//   static fromAddress(address: ExcelCellAddress | ExcelRangeAddress): QAddress {
+
+//   }
+
+//   static fromIndex(index: ExcelCellIndex | ExcelRangeIndex): QAddress {}
+// }

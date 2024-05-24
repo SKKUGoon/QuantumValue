@@ -1,6 +1,7 @@
 import * as React from "react";
 import { Button, makeStyles, Field, Textarea } from "@fluentui/react-components";
-import { ModelOrder } from "./modelconn";
+// import { ModelOrder } from "./modelconn";
+import { AIParsable, TableParser } from "./rangeParse";
 
 const useStyles = makeStyles({
   textPromptAndInsertion: {
@@ -34,11 +35,14 @@ const AI: React.FC = () => {
   };
 
   const shoot = async () => {
-    const mo = new ModelOrder();
-    mo.context(context);
-    mo.ask(text);
+    // const mo = new ModelOrder();
+    // mo.context(context);
+    // mo.ask(text);
 
-    await mo.generate();
+    // await mo.generate();
+
+    const testParse: AIParsable = { manualBlock: { blockKey: "Sheet1___blocktest___display" }, isParsed: false };
+    new TableParser(testParse);
   };
 
   const styles = useStyles();

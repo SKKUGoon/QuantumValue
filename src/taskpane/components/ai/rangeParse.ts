@@ -1,4 +1,7 @@
 /* eslint-disable no-undef */
+import { getNamedObjectContent } from "../../redux/store/block/blockMethodName";
+import { QBlock } from "../../redux/store/block/dtypes";
+import { AppDispatch } from "../../redux/store/root";
 import { ExcelCellIndex } from "../../redux/util/address";
 
 export enum TableAxis {
@@ -32,7 +35,7 @@ export interface AIParsable {
     rangeEnd: ExcelCellIndex;
     offset?: [number, number];
   };
-  contentAxis: TableAxis;
+  contentAxis?: TableAxis;
 }
 
 export class TableParser implements AIParsable {
@@ -49,13 +52,14 @@ export class TableParser implements AIParsable {
     offset?: [number, number];
   };
   blockKey?: string;
-  contentAxis: TableAxis;
+  contentAxis?: TableAxis;
 
-  constructor({ summary, text, isParsed, manualRange: manual, blockKey, contentAxis }: AIParsable) {
+  constructor({ summary, text, isParsed, manualRange, manualBlock, blockKey, contentAxis }: AIParsable) {
     this.summary = summary;
     this.text = text;
     this.isParsed = isParsed;
-    this.manualRange = manual;
+    this.manualRange = manualRange;
+    this.manualBlock = manualBlock;
     this.blockKey = blockKey;
     this.contentAxis = contentAxis;
 
@@ -70,14 +74,27 @@ export class TableParser implements AIParsable {
 
   private textify() {}
 
-  private retrieveFromWorkbook() {
-    // Something
+  async retrieveFromWorkbook(dispatch: AppDispatch) {
+    if (this.manualRange) this._retrieveManualRange();
+
+    // For manual block given
+    if (this.manualBlock) {
+      const block = QBlock.fromBlockKey(this.manualBlock.blockKey);
+      await this._retrieveManualBlock(block, dispatch);
+    }
   }
 
-  private _retrieveManual() {
+  private _retrieveManualRange() {
     if (!this.manualRange) return;
 
-    // const range = `${this.manual.rangeStart}:${this.manual.rangeEnd}`;
+    // const rangeAddress = `${this.manualRange.rangeStart}:${this.manualRange.rangeEnd}`;
+  }
+
+  private async _retrieveManualBlock(block: QBlock, dispatch: AppDispatch) {
+    if (!this.manualBlock) return;
+
+    const content = await dispatch(getNamedObjectContent({ blockName: block.name, targetSheet: block.onSheet }));
+    console.log(content);
   }
 
   parse1D() {}
