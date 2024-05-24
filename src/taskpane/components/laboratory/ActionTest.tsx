@@ -2,9 +2,8 @@
 import * as React from "react";
 import { Button, tokens, makeStyles } from "@fluentui/react-components";
 import { useAppDispatch } from "../../redux/store/hook";
-// import { focusSheet } from "../../redux/store/model/modelMethodSheet";
 import { modelSliceAction } from "../../redux/store/model/model";
-import { ModelOrder } from "../ai/modelconn";
+import { getNamedObjectContent } from "../../redux/store/block/blockMethodName";
 
 const useStyles = makeStyles({
   instructions: {
@@ -16,6 +15,7 @@ const useStyles = makeStyles({
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
+    justifyContent: "center",
   },
   textAreaField: {
     marginLeft: "20px",
@@ -33,18 +33,18 @@ const ActionTest: React.FC = () => {
   const dispatch = useAppDispatch();
 
   const actions = async () => {
-    // await Excel.run(async (context) => {
-    //   try {
-    //     console.log(`Action init`);
-    //     console.log(`Action successfully ended`);
-    //   } catch (err) {
-    //     console.error(err);
-    //   }
-    // });
-    const mo = new ModelOrder();
-    mo.context("IGIS asset management recently had a massive layoff of 300. At 2024 05 22");
-    mo.ask("What is IGIS asset managment?");
-    mo.generate();
+    await Excel.run(async (context) => {
+      try {
+        console.log(`Action init`);
+        // await dispatch(
+        //   setNamedObject({ context: context, targetSheet: "Sheet1", targetRange: "A1:C3", blockName: "test" })
+        // );
+        await dispatch(getNamedObjectContent({ context: context, targetSheet: "Sheet1", blockName: "test" }));
+        console.log(`Action successfully ended`);
+      } catch (err) {
+        console.error(err);
+      }
+    });
   };
 
   const viewStore = async () => {

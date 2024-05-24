@@ -6,6 +6,7 @@ import { Ribbon24Regular, LockOpen24Regular, DesignIdeas24Regular } from "@fluen
 import { Provider } from "react-redux";
 import store from "../redux/store/root";
 import ActionTest from "./laboratory/ActionTest";
+import AI from "./ai/AI";
 
 interface AppProps {
   title: string;
@@ -41,6 +42,7 @@ const App = (props: AppProps) => {
       <Provider store={store}>
         <Header logo="assets/QuantumLogo.png" title={props.title} message="Welcome" />
         <HeroList message="Discover what this add-in can do for you today!" items={listItems} />
+        <AI />
         {/* <TextInsertion /> */}
         <ActionTest />
       </Provider>
