@@ -3,6 +3,7 @@
 const CopyWebpackPlugin = require("copy-webpack-plugin");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const nodeExternals = require("webpack-node-externals");
+const path = require("path");
 
 const urlDev = "https://localhost:3000/";
 const urlProd = "https://www.contoso.com/"; // CHANGE THIS TO YOUR PRODUCTION DEPLOYMENT LOCATION
@@ -26,6 +27,11 @@ module.exports = async (_env, options) => {
           http: require.resolve("stream-http"),
           https: require.resolve("https-browserify"),
           url: require.resolve("url/"),
+        },
+        alias: {
+          "@components": path.resolve(__dirname, "src/taskpane/components"),
+          "@redux": path.resolve(__dirname, "src/taskpane/redux"),
+          "@util": path.resolve(__dirname, "src/taskpane/util"),
         },
       },
       module: {
