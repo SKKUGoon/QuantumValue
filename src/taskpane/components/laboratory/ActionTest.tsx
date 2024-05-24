@@ -3,9 +3,7 @@ import * as React from "react";
 import { Button, tokens, makeStyles } from "@fluentui/react-components";
 import { useAppDispatch } from "../../redux/store/hook";
 import { modelSliceAction } from "../../redux/store/model/model";
-import { setNamedObject } from "../../redux/store/block/blockMethodName";
-import { QBlockProp } from "../../redux/store/block/dtypes";
-import { QCellProp } from "../../util/address";
+import { getNamedObjectContent } from "../../redux/store/block/blockMethodName";
 
 const useStyles = makeStyles({
   instructions: {
@@ -37,20 +35,27 @@ const ActionTest: React.FC = () => {
   const actions = async () => {
     await Excel.run(async (context) => {
       try {
-        console.log(`Action init`);
+        console.log(`[ActionTest] >>> Action init`);
 
-        const sc: QCellProp = { address: "A1" };
-        const ec: QCellProp = { address: "E5" };
-        const blockConfig: QBlockProp = {
-          topleft: sc,
-          botright: ec,
-          name: "test",
-          onSheet: "Sheet1",
-        };
+        // const sc: QCellProp = { address: "A1" };
+        // const ec: QCellProp = { address: "E5" };
+        // const blockConfig: QBlockProp = {
+        //   topleft: sc,
+        //   botright: ec,
+        //   name: "test",
+        //   onSheet: "Sheet1",
+        // };
 
-        await dispatch(setNamedObject({ context: context, blockConfig: blockConfig }));
+        // await dispatch(setNamedObject({ context: context, blockConfig: blockConfig }));
 
-        console.log(`Action successfully ended`);
+        await dispatch(
+          getNamedObjectContent({
+            context: context,
+            blockKey: "Sheet1___test___display",
+          })
+        );
+
+        console.log(`[ActionTest] >>> Action successfully ended`);
       } catch (err) {
         console.error(err);
       }

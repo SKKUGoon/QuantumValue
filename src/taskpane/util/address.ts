@@ -125,7 +125,7 @@ export class QParse {
   }
 
   static indexToAddress(index: ExcelCellIndex | ExcelRangeIndex): ExcelCellAddress | ExcelRangeAddress {
-    console.log(index);
+    console.log(index); // TODO: Implement
     return "";
   }
 }

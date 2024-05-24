@@ -65,7 +65,7 @@ Office.onReady(() => {
       .handleRedirectPromise()
       .then(handleResponse)
       .catch((error) => {
-        console.log(error);
+        console.error(error);
         Office.context.ui.messageParent(JSON.stringify({ status: "failure", result: error }));
       });
 

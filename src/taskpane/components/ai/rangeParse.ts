@@ -93,7 +93,7 @@ export class TableParser implements AIParsable {
   private async _retrieveManualBlock(block: QBlock, dispatch: AppDispatch) {
     if (!this.manualBlock) return;
 
-    const content = await dispatch(getNamedObjectContent({ blockName: block.name, targetSheet: block.onSheet }));
+    const content = await dispatch(getNamedObjectContent({ blockKey: block.name }));
     console.log(content);
   }
 
