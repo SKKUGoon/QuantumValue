@@ -5,7 +5,7 @@ import { FluentProvider, webDarkTheme } from "@fluentui/react-components";
 
 /* global document, Office, module, require */
 
-const title = "Contoso Task Pane Add-in";
+const title = "Quantum Valuation Modeller";
 
 const rootElement: HTMLElement = document.getElementById("container");
 const root = createRoot(rootElement);

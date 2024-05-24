@@ -10,14 +10,17 @@ export interface HeaderProps {
 const useStyles = makeStyles({
   welcome__header: {
     display: "flex",
-    flexDirection: "column",
+    flexDirection: "row",
     alignItems: "center",
-    paddingBottom: "30px",
-    paddingTop: "100px",
+    paddingBottom: "5px",
+    paddingTop: "5px",
     backgroundColor: tokens.colorNeutralBackground3,
   },
+  logo: {
+    marginRight: "20px",
+  },
   message: {
-    fontSize: tokens.fontSizeHero900,
+    fontSize: "2.5em",
     fontWeight: tokens.fontWeightRegular,
     fontColor: tokens.colorNeutralBackgroundStatic,
   },
@@ -29,8 +32,8 @@ const Header: React.FC<HeaderProps> = (props: HeaderProps) => {
 
   return (
     <section className={styles.welcome__header}>
-      <Image width="90" height="90" src={logo} alt={title} />
-      <h1 className={styles.message}>{message}</h1>
+      <Image width="90" height="90" src={logo} alt={title} className={styles.logo} />
+      <h3 className={styles.message}>{message}</h3>
     </section>
   );
 };
