@@ -1,6 +1,6 @@
 /* eslint-disable no-undef */
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { stolog } from "../log";
+import { modelLog } from "../log";
 import { SheetStatus } from "./dtypes";
 import { ExcelSheet } from "../../../util/address";
 
@@ -42,20 +42,20 @@ export const modelSlice = createSlice({
     // Excel status actions
     language: (state) => {
       const lang = Office.context.displayLanguage;
-      stolog(state, `current display language is ${lang}`);
+      modelLog(state, `current display language is ${lang}`);
       state.displayLang = lang;
     },
     // Sheet controlling actions
     addSheet: (state, action: PayloadAction<{ name: ExcelSheet }>) => {
-      stolog(state, `Adding sheet ${action.payload.name}`);
+      modelLog(state, `Adding sheet ${action.payload.name}`);
       state.sheets.push(action.payload);
     },
     removeSheet: (state, action: PayloadAction<{ name: ExcelSheet }>) => {
-      stolog(state, `Removing sheet ${action.payload.name}`);
+      modelLog(state, `Removing sheet ${action.payload.name}`);
       state.sheets = state.sheets.filter((sheet) => sheet.name !== action.payload.name);
     },
     focusSheet: (state, action: PayloadAction<{ name: ExcelSheet }>) => {
-      stolog(state, `Focused on ${action.payload.name}`);
+      modelLog(state, `Focused on ${action.payload.name}`);
     },
   },
 });

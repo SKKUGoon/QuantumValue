@@ -4,6 +4,7 @@ import { SheetStatus } from "./dtypes";
 import { AppDispatch, RootState } from "../root";
 import { modelSliceAction } from "./model";
 import { ExcelCellAddress, ExcelRangeAddress, ExcelSheet } from "../../../util/address";
+import { modelLog } from "../log";
 
 interface SheetPayload {
   context?: Excel.RequestContext;
@@ -103,15 +104,17 @@ const focusSheetHandler = async (
 
 export const addSheet = createAsyncThunk<void, UpsertSheetPayload, { dispatch: AppDispatch; state: RootState }>(
   "model/addSheet",
-  async ({ context, name, config }, { dispatch }) => {
+  async ({ context, name, config }, { dispatch, getState }) => {
+    const rs = getState();
+
     if (context) {
       const [isNew, sheetInfo] = await upsertSheetHandler(context, name, config);
       dispatch(modelSliceAction.addSheet({ name: name }));
 
       if (isNew) {
-        console.log(`[New sheet generated] >>> ${sheetInfo}`);
+        modelLog(rs.model, `[New sheet generated] >>> ${sheetInfo}`);
       } else {
-        console.log(`[Existing sheet] >>> ${sheetInfo}. Updated config`);
+        modelLog(rs.model, `[Existing sheet] >>> ${sheetInfo}. Updated config`);
       }
     } else {
       await Excel.run(async (context) => {
@@ -119,9 +122,9 @@ export const addSheet = createAsyncThunk<void, UpsertSheetPayload, { dispatch: A
         dispatch(modelSliceAction.addSheet({ name: name }));
 
         if (isNew) {
-          console.log(`[New sheet generated] >>> ${sheetInfo}`);
+          modelLog(rs.model, `[New sheet generated] >>> ${sheetInfo}`);
         } else {
-          console.log(`[Existing sheet] >>> ${sheetInfo}`);
+          modelLog(rs.model, `[Existing sheet] >>> ${sheetInfo}`);
         }
       });
     }

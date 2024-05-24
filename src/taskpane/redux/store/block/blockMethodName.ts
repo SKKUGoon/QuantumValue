@@ -15,7 +15,7 @@ export interface SetBlockPayload extends BlockPayload {
 }
 
 export type SetBlockResultPayload = {
-  blockname: string;
+  blockKey: string;
   targetSheet: ExcelSheet;
   targetRange: ExcelCellAddress | ExcelRangeAddress;
 };
@@ -28,8 +28,6 @@ const setNamedObjectHandler = async ({ context, blockConfig }: SetBlockPayload):
   const blockNm = newBlock.toBlockKey();
   const blockSheet = newBlock.onSheet;
   const blockRange = newBlock.getBlockRange();
-
-  console.log(blockNm, blockSheet, blockRange, newBlock, blockConfig);
 
   let sheet: Excel.Worksheet;
   let sheetNamedItems: Excel.NamedItemCollection;
@@ -44,13 +42,11 @@ const setNamedObjectHandler = async ({ context, blockConfig }: SetBlockPayload):
   sheetNamedItems.load("items/name");
   await context.sync();
 
-  console.log("named items", sheetNamedItems.items);
-
   // Add target Range
   sheet.names.add(blockNm, `=${newBlock.getBlockRange()}`);
   await context.sync();
 
-  return { blockname: blockNm, targetSheet: blockSheet, targetRange: blockRange };
+  return { blockKey: blockNm, targetSheet: blockSheet, targetRange: blockRange };
 };
 
 export const setNamedObject = createAsyncThunk<
@@ -74,29 +70,30 @@ export const setNamedObject = createAsyncThunk<
 /* Get Named Object */
 
 export interface GetBlockPayload extends BlockPayload {
-  blockName: string;
-  targetSheet: string;
+  blockKey: string;
 }
 
-const getNamedObjectHandler = async ({ context, blockName, targetSheet }: GetBlockPayload) => {
+const getNamedObjectHandler = async ({ context, blockKey }: GetBlockPayload) => {
   if (!context) return;
 
-  const sheet = context.workbook.worksheets.getItem(targetSheet).names;
+  const blk = QBlock.fromBlockKey(blockKey);
+
+  const sheet = context.workbook.worksheets.getItem(blk.onSheet).names;
   sheet.load("items/name");
   await context.sync();
 
-  console.log(sheet.items, blockName);
+  console.log(sheet.items, blockKey);
 };
 
 export const getNamedObject = createAsyncThunk<void, GetBlockPayload, { dispatch: AppDispatch; state: RootState }>(
   "block/getNamedObject",
-  async ({ context, blockName, targetSheet }) => {
+  async ({ context, blockKey }) => {
     if (context) {
-      await getNamedObjectHandler({ context, blockName, targetSheet });
+      await getNamedObjectHandler({ context, blockKey });
     } else {
       await Excel.run(async (context) => {
         try {
-          await getNamedObjectHandler({ context, blockName, targetSheet });
+          await getNamedObjectHandler({ context, blockKey });
         } catch (error) {
           console.error(error);
         }
@@ -107,18 +104,16 @@ export const getNamedObject = createAsyncThunk<void, GetBlockPayload, { dispatch
 
 /* Get Named Object's Content */
 
-const getNamedObjectContentHandler = async ({
-  context,
-  blockName,
-  targetSheet,
-}: GetBlockPayload): Promise<QBlockContent> => {
+const getNamedObjectContentHandler = async ({ context, blockKey }: GetBlockPayload): Promise<QBlockContent> => {
   if (!context) return;
-  console.log("here");
-  const sheet = context.workbook.worksheets.getItem(targetSheet).names;
+
+  const blk = QBlock.fromBlockKey(blockKey);
+
+  const sheet = context.workbook.worksheets.getItem(blk.onSheet).names;
   sheet.load();
   await context.sync();
 
-  const namedItem = sheet.getItem(blockName).getRange();
+  const namedItem = sheet.getItem(blockKey).getRange();
   namedItem.load("values, formulas");
   await context.sync();
 
@@ -128,6 +123,7 @@ const getNamedObjectContentHandler = async ({
   };
 };
 
+// TODO: Implement
 // const getMultiNamedObjectContentHandler = async (context: Excel.RequestContext, blocks: GetBlockPayload[]) => {
 //   if (!context) return;
 
@@ -139,13 +135,13 @@ export const getNamedObjectContent = createAsyncThunk<
   QBlockContent,
   GetBlockPayload,
   { dispatch: AppDispatch; state: RootState }
->("block/getNamedObjectContent", async ({ context, blockName, targetSheet }) => {
+>("block/getNamedObjectContent", async ({ context, blockKey }) => {
   if (context) {
-    return await getNamedObjectContentHandler({ context, blockName, targetSheet });
+    return await getNamedObjectContentHandler({ context, blockKey });
   } else {
     return await Excel.run(async (context) => {
       try {
-        return await getNamedObjectContentHandler({ context, blockName, targetSheet });
+        return await getNamedObjectContentHandler({ context, blockKey });
       } catch (error) {
         console.error(error);
       }
