@@ -14,7 +14,7 @@ const useStyles = makeStyles({
     alignItems: "center",
     paddingBottom: "5px",
     paddingTop: "5px",
-    backgroundColor: tokens.colorNeutralBackground3,
+    backgroundColor: "#000f23",
   },
   logo: {
     marginRight: "20px",

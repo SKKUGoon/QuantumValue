@@ -1,31 +1,39 @@
-import { QuantumAddress } from "../../../util/address";
+import { QAddress } from "../../../util/address";
 
-export enum BlockContent {
+export enum QBlockContent {
   Data,
   Display,
   VerticalExtend,
   HorizontalExtend,
 }
 
-export interface BlockProp {
+export interface QBlockProp {
   // Range box start and end
-  topleft: QuantumAddress;
-  botright: QuantumAddress;
+  topleft?: QAddress;
+  botright?: QAddress;
 
-  name: string;
-  generate: string;
-  content: BlockContent;
+  name?: string;
+  generate?: string;
+  content?: QBlockContent;
 }
 
-export class Block implements BlockProp {
-  topleft: QuantumAddress;
-  botright: QuantumAddress;
+export class QBlock implements QBlockProp {
+  topleft?: QAddress;
+  botright?: QAddress;
 
-  name: string;
-  generate: string;
-  content: BlockContent;
+  name?: string;
+  generate?: string;
+  content?: QBlockContent;
 
-  constructor() {
-    this.topleft = new QuantumAddress();
+  constructor({ topleft, botright, name, generate, content }: QBlockProp) {
+    this.topleft = topleft;
+    this.botright = botright;
+    this.name = name;
+    this.generate = generate;
+    this.content = content;
+  }
+
+  toString(): string {
+    return `${this.name}`;
   }
 }

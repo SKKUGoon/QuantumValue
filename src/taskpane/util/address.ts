@@ -48,7 +48,7 @@ export const CellPropDefault = {
   },
 };
 
-export class QuantumParse {
+export class QParse {
   static parseEngRange(input: string): string[][] {
     const re = /[A-Z]+[0-9]+(?=:)|(?<=:)[A-Z]+[0-9]+|^[A-Z]+[0-9]+$/g;
     const cellMatch = input.match(re);
@@ -64,10 +64,12 @@ export class QuantumParse {
     return cells;
   }
 
-  static columnToIndex(colStr: string) {
+  static columnToIndex(colStr: string): number {
+    const capColStr = colStr.toUpperCase();
+
     let index = 0;
-    for (let i = 0; i < colStr.length; i++) {
-      const charCd = colStr.charCodeAt(i) - "A".charCodeAt(0) + 1;
+    for (let i = 0; i < capColStr.length; i++) {
+      const charCd = capColStr.charCodeAt(i) - "A".charCodeAt(0) + 1;
       index = index * 26 + charCd;
     }
     return index - 1; // Convert to 0 based index
@@ -78,6 +80,26 @@ export class QuantumParse {
   }
 }
 
-export class QuantumAddress {
-  constructor() {}
+export class QAddress {
+  static addressToIndex(address: ExcelCellAddress | ExcelRangeAddress): ExcelCellIndex | ExcelRangeIndex {
+    const strAddress = address.includes("!") ? address.split("!")[0] : address;
+    const [start, end] = strAddress.replace(/\$/g, "").split(":"); // Remove Dollar sign
+
+    const startColumn = QParse.columnToIndex(start.replace(/\d+/g, "")); // Remove all digit => Column
+    const startRow = parseInt(start.replace(/[A-Z]+/gi, ""), 10);
+
+    if (end) {
+      const endColumn = QParse.columnToIndex(end.replace(/\d+/g, "")); // Remove all digit => Column
+      const endRow = parseInt(end.replace(/[A-Z]+/gi, ""), 10);
+
+      return [startRow, endRow, startColumn, endColumn] as ExcelRangeIndex;
+    }
+
+    return [startRow, startColumn] as ExcelCellIndex;
+  }
+
+  static indexToString(index: ExcelCellIndex | ExcelRangeIndex): ExcelCellAddress | ExcelRangeAddress {
+    console.log(index);
+    return "";
+  }
 }
