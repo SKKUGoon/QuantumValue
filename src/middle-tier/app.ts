@@ -5,6 +5,7 @@ import https from "https";
 import logger from "morgan";
 import * as path from "path";
 import { getHttpsServerOptions } from "office-addin-dev-certs";
+import { llmQuery } from "./ollama/llm";
 
 /* global console, process, require, __dirname */
 
@@ -30,7 +31,7 @@ app.use(cookieParser());
 if (process.env.NODE_ENV !== "production") {
   app.use(express.static(path.join(process.cwd(), "dist"), { etag: false }));
 
-  app.use((_, res, next) => {
+  app.use((_req, res, next) => {
     res.header("Cache-Control", "private, no-cache, no-store, must-revalidate");
     res.header("Expires", "-1");
     res.header("Pragma", "no-cache");
@@ -42,22 +43,28 @@ if (process.env.NODE_ENV !== "production") {
 }
 
 const indexRouter = express.Router();
-indexRouter.get("/", (_, res) => {
+indexRouter.get("/", (_req, res) => {
   res.render("/taskpane.html");
 });
 
 app.use("/", indexRouter);
 
 // Middle-tier API calls
+app.get("/ping", function (req: any, res: any) {
+  res.status(200).json({ message: "I'm alive" });
+});
 
 // Get the client side task pane files requested
-app.get("/taskpane.html", async (req: any, res: any) => {
+app.get("/taskpane.html", async (_req: any, res: any) => {
   return res.sendfile("taskpane.html");
 });
 
-app.get("/fallbackauthdialog.html", async (req: any, res: any) => {
+app.get("/fallbackauthdialog.html", async (_req: any, res: any) => {
   return res.sendfile("fallbackauthdialog.html");
 });
+
+// LLM API calls
+app.post("/llm", llmQuery);
 
 // Catch 404 and forward to error handler
 app.use((_req: any, _res: any, next: any) => {
