@@ -3,7 +3,6 @@ import * as React from "react";
 import { Button, tokens, makeStyles } from "@fluentui/react-components";
 import { useAppDispatch } from "../../redux/store/hook";
 import { modelSliceAction } from "../../redux/store/model/model";
-import { getNamedObjectContent } from "../../redux/store/block/blockMethodName";
 
 const useStyles = makeStyles({
   instructions: {
@@ -36,7 +35,7 @@ const ActionTest: React.FC = () => {
     await Excel.run(async (context) => {
       try {
         console.log(`[ActionTest] >>> Action init`);
-
+        console.log(context);
         // const sc: QCellProp = { address: "A1" };
         // const ec: QCellProp = { address: "E5" };
         // const blockConfig: QBlockProp = {
@@ -48,12 +47,15 @@ const ActionTest: React.FC = () => {
 
         // await dispatch(setNamedObject({ context: context, blockConfig: blockConfig }));
 
-        await dispatch(
-          getNamedObjectContent({
-            context: context,
-            blockKey: "Sheet1___test___display",
-          })
-        );
+        // const valuesPayload = await dispatch(
+        //   getManualBlock({
+        //     context: context,
+        //   })
+        // );
+        // const values = valuesPayload.payload as QBlockContent;
+
+        // console.log(values);
+        // console.log(TableParser.parse1DTimeSeries(values.values, 0, 0, 1));
 
         console.log(`[ActionTest] >>> Action successfully ended`);
       } catch (err) {

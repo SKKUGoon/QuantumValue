@@ -8,6 +8,38 @@ interface BlockPayload {
   context?: Excel.RequestContext;
 }
 
+const getManualBlockHandler = async ({ context }: BlockPayload): Promise<QBlockContent> => {
+  if (!context) return;
+
+  const manualRange = context.workbook.getSelectedRange();
+
+  manualRange.load("values, formulas");
+  await context.sync();
+
+  return {
+    values: manualRange.values,
+    formulas: manualRange.formulas,
+  };
+};
+
+export const getManualBlock = createAsyncThunk<
+  QBlockContent,
+  BlockPayload,
+  { dispatch: AppDispatch; state: RootState }
+>("block/getManualBlock", async ({ context }) => {
+  if (context) {
+    return getManualBlockHandler({ context });
+  } else {
+    return await Excel.run(async (context) => {
+      try {
+        return await getManualBlockHandler({ context });
+      } catch (error) {
+        console.error(error);
+      }
+    });
+  }
+});
+
 /* Set Named Object */
 
 export interface SetBlockPayload extends BlockPayload {

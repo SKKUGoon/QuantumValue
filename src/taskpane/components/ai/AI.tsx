@@ -1,7 +1,11 @@
+/* eslint-disable no-undef */
 import * as React from "react";
 import { Button, makeStyles, Field, Textarea } from "@fluentui/react-components";
-// import { ModelOrder } from "./modelconn";
-import { AIParsable, TableParser } from "./rangeParse";
+import { getManualBlock } from "../../redux/store/block/blockMethodName";
+import { QBlockContent } from "../../redux/store/block/dtypes";
+import { useAppDispatch } from "../../redux/store/hook";
+import { ModelOrder } from "./modelconn";
+import { TableDataType, TableParser, TimeSeriesAxis } from "./rangeParse";
 
 const useStyles = makeStyles({
   textPromptAndInsertion: {
@@ -24,25 +28,49 @@ const useStyles = makeStyles({
 
 const AI: React.FC = () => {
   const [context, setContext] = React.useState<string>("");
-  const [text, setText] = React.useState<string>("");
+  const [question, setQuestion] = React.useState<string>("");
+  const [answer, setAnswer] = React.useState<string>("");
+
+  const dispatch = useAppDispatch();
+
+  // Employ 2 llm model logs
+  const translator = new ModelOrder();
+  const summaryBot = new ModelOrder();
 
   const handleContextChange = async (event: React.ChangeEvent<HTMLTextAreaElement>) => {
     setContext(event.target.value);
   };
 
   const handleTextChange = async (event: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setText(event.target.value);
+    setQuestion(event.target.value);
   };
 
-  const shoot = async () => {
-    // const mo = new ModelOrder();
-    // mo.context(context);
-    // mo.ask(text);
+  const parseContext = async () => {
+    await Excel.run(async (context) => {
+      try {
+        const valuesPayload = await dispatch(getManualBlock({ context: context }));
+        const values = valuesPayload.payload as QBlockContent;
 
-    // await mo.generate();
+        setContext(TableParser.parse1D(values.values, TableDataType.TimeSeries, { ts: TimeSeriesAxis.X }));
+      } catch (err) {
+        console.error(err);
+      }
+    });
+  };
 
-    const testParse: AIParsable = { manualBlock: { blockKey: "Sheet1___blocktest___display" }, isParsed: false };
-    new TableParser(testParse);
+  const answerQuestion = async () => {
+    // Translate the question into English - for better performance
+    translator.translateEng(question);
+    const translated = await translator.generate();
+
+    console.log("1st translation", question, translated.message.content);
+
+    // Ask the question and get the `answer`
+    summaryBot.context(context);
+    summaryBot.ask(translated.message.content);
+
+    const answer = await summaryBot.generate();
+    setAnswer(answer.message.content);
   };
 
   const styles = useStyles();
@@ -57,12 +85,24 @@ const AI: React.FC = () => {
 
       <div className={styles.textPromptAndInsertion}>
         <Field className={styles.textAreaField} size="large" label="Enter your question.">
-          <Textarea size="large" value={text} onChange={handleTextChange} />
+          <Textarea size="large" value={question} onChange={handleTextChange} />
         </Field>
       </div>
 
       <div className={styles.textPromptAndInsertion}>
-        <Button className={styles.buttons} appearance="primary" disabled={false} size="medium" onClick={shoot}>
+        <Field className={styles.textAreaField} size="large" label="Answer from model.">
+          <Textarea size="large" value={answer} />
+        </Field>
+      </div>
+
+      <div className={styles.textPromptAndInsertion}>
+        <Button className={styles.buttons} appearance="primary" disabled={false} size="medium" onClick={parseContext}>
+          Set Context
+        </Button>
+      </div>
+
+      <div className={styles.textPromptAndInsertion}>
+        <Button className={styles.buttons} appearance="primary" disabled={false} size="medium" onClick={answerQuestion}>
           Generate
         </Button>
       </div>

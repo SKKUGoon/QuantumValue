@@ -1,14 +1,12 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable no-undef */
 import { Request, Response } from "express";
+import { ChatRecord } from "src/taskpane/components/ai/modelconn";
 
 export type OllamaResponse = {
   model: string;
   created_at: string;
-  message: {
-    role: "assistant" | "user" | "system";
-    content: string;
-  };
+  message: ChatRecord;
   done_reason: string;
   done: boolean;
   total_duration: number;

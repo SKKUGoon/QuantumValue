@@ -5,7 +5,7 @@ import { Provider } from "react-redux";
 import store from "../redux/store/root";
 import ActionTest from "./laboratory/ActionTest";
 import AI from "./ai/AI";
-import TradingViewSingleQuoteWidget from "./graph/TradingView";
+// import TradingViewSingleQuoteWidget from "./graph/TradingView";
 
 interface AppProps {
   title: string;
@@ -24,7 +24,7 @@ const App = (props: AppProps) => {
     <div className={styles.root}>
       <Provider store={store}>
         <Header logo="assets/QuantumLogo.png" title={props.title} message="Quamtum Value" />
-        <TradingViewSingleQuoteWidget />
+        {/* <TradingViewSingleQuoteWidget /> */}
         <AI />
         <ActionTest />
       </Provider>

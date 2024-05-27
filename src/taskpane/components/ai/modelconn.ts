@@ -49,6 +49,24 @@ export class ModelOrder implements ModelChat {
     this.messages.push(user);
   }
 
+  translateEng(question: string) {
+    const user: ChatRecord = {
+      role: "user",
+      content: `Translate the following finance related question into English: ${question}`,
+    };
+
+    this.messages.push(user);
+  }
+
+  translateKor(question: string) {
+    const user: ChatRecord = {
+      role: "user",
+      content: `Translate the following finance related answer into Korean: ${question}`,
+    };
+
+    this.messages.push(user);
+  }
+
   private _messageQueueSlice(): void {
     if (this.messages.length > MAXCHATHISTORY) {
       if (this.isSysPrompt) {
@@ -87,6 +105,8 @@ export class ModelOrder implements ModelChat {
 
     const generated = (await resps.json()) as { message: OllamaResponse };
     console.log(generated);
+
+    this.messages.push(generated.message.message);
 
     return generated.message;
   }

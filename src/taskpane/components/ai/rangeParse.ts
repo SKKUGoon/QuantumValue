@@ -11,6 +11,17 @@ export enum TableAxis {
   NestedY = "nestedY",
 }
 
+export enum TableDataType {
+  Panel = "panel",
+  CrossSection = "cross",
+  TimeSeries = "time",
+}
+
+export enum TimeSeriesAxis {
+  X = "x",
+  Y = "y",
+}
+
 export interface AIParsable {
   // Simple summary regarding the table.
   // Generated with LLM.
@@ -97,7 +108,56 @@ export class TableParser implements AIParsable {
     console.log(content);
   }
 
-  parse1D() {}
+  /**
+   * From the `data`(any[][]), pull all the values and make it into single string contedxt
+   * @param data : data from excel table
+   */
+  static parse1D(
+    data: any[][],
+    dataType: TableDataType,
+    tableConfig: { ts?: TimeSeriesAxis; nonTs?: TableAxis }
+  ): string | undefined {
+    if (dataType === TableDataType.CrossSection || dataType === TableDataType.Panel) {
+      if (!tableConfig.nonTs) return undefined;
+
+      // Something
+    } else {
+      if (!tableConfig.ts) return undefined;
+
+      if (tableConfig.ts === TimeSeriesAxis.X) {
+        return TableParser.parse1DTimeSeriesRow(data, 0, 0);
+      } else {
+        // TODO: Transpose the `data`
+        return TableParser.parse1DTimeSeriesRow(data, 0, 0);
+      }
+    }
+  }
+
+  private static parse1DTimeSeriesRow(data: any[][], ts: number, name: number): string {
+    const contextStrElement: string[] = [];
+    contextStrElement.push("Answer question based on the following data description:");
+
+    // Row is time series
+    const tsRow = data.at(ts).slice(name + 1);
+    for (let row = 0; row < data.length; row++) {
+      if (row === ts) continue;
+
+      const tsName = data.at(row).at(name);
+      const tsData = data.at(row).slice(name + 1);
+
+      // State the name and data
+      const contextSingleTsElement: string[] = [];
+
+      contextSingleTsElement.push(`Data for time series ${tsName} is as follows. `);
+      for (let i = 0; i < tsData.length; i++) {
+        contextSingleTsElement.push(`For ${tsRow[i]}, value is ${tsData[i]}. `);
+      }
+
+      contextStrElement.push(contextSingleTsElement.join(""));
+    }
+
+    return contextStrElement.join("\n");
+  }
 
   parse2D() {}
 
